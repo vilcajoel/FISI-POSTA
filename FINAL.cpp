@@ -30,7 +30,7 @@ struct Paciente{
 	int telefono;
 	char Seguro[10];
 	char Problemas_Medicos[200];
-};
+}* prim, * ult;
 
 struct Historial{
 	int codigoHist;
@@ -1115,7 +1115,7 @@ void menu_paciente_opciones(void) {
 }
 
 void opcion_crear_paciente(void){
-	Paciente* paciente=new Paciente();
+	Paciente* nuevoPaciente=new Paciente();
 	Paciente pac;
 	bool existe;
 	string rspta,apelli1,apelli2,nombres,nacim,cita,problem;
@@ -1134,16 +1134,29 @@ void opcion_crear_paciente(void){
 		cout <<"\n\tEste paciente ya existe."<<endl;
 		pausar_pantalla();
 	} else {
+		if(prim==NULL){
+			prim=nuevoPaciente;
+			prim->siguiente=NULL;
+			ult= prim;		 //SE UTILIZA LA ESTRUCTURA DE DATOS COLA, PARA SIMULAR A LAS COLAS DE PACIENTES QUE BUSCAN INGRESAR A LA CLINICA
+		}else{
+			ult->siguiente = nuevoPaciente;
+			nuevoPaciente->siguiente = NULL;
+			ult=nuevoPaciente;	
+		}
 		pac.DNI = dniPac;	
+		nuevoPaciente->DNI=dniPac;
 		cout << "\tApellido Paterno: ";
 		getline(cin,apelli1);
 		strcpy(pac.Apellido_Paterno,apelli1.c_str());
+		strcpy(nuevoPaciente->Apellido_Paterno,apelli1.c_str());
 		cout << "\tApellido Materno: ";
 		getline(cin,apelli2);
 		strcpy(pac.Apellido_Materno,apelli2.c_str());
+		strcpy(nuevoPaciente->Apellido_Materno,apelli2.c_str());
 		cout<< "\tNombres: ";
 		getline(cin,nombres);
 		strcpy(pac.Nombres,nombres.c_str());
+		strcpy(nuevoPaciente->Nombres,nombres.c_str());
 		cout<< "\tEstado Civil: ";
 		cout<< "\n\t\tSoltero.....[1]";
 		cout<< "\n\t\tCasado......[2]";
@@ -1155,18 +1168,22 @@ void opcion_crear_paciente(void){
 			case 1:
 				estad1="Soltero";
 				strcpy(pac.Estado_Civil,estad1.c_str());
+				strcpy(nuevoPaciente->Estado_Civil,estad1.c_str());
 				break;
 			case 2:
 				estad1="Casado";
 				strcpy(pac.Estado_Civil,estad1.c_str());
+				strcpy(nuevoPaciente->Estado_Civil,estad1.c_str());
 				break;
 			case 3:
 				estad1="Viudo";
 				strcpy(pac.Estado_Civil,estad1.c_str());
+				strcpy(nuevoPaciente->Estado_Civil,estad1.c_str());
 				break;
 			case 4:
 				estad1="Divorciado";
 				strcpy(pac.Estado_Civil,estad1.c_str());
+				strcpy(nuevoPaciente->Estado_Civil,estad1.c_str());
 				break;
 		}
 		cout<< "\tGenero: ";
@@ -1188,17 +1205,21 @@ void opcion_crear_paciente(void){
 		cout<<"\n\tDia: ";
 		fNac.dia=obtener_entero(1,31);
 		pac.Fecha_Nac.dia = fNac.dia;
+		nuevoPaciente->Fecha_Nac.dia = fNac.dia;
 		cout<<"\tMes: ";
 		fNac.mes = obtener_entero(1,12);
 		pac.Fecha_Nac.mes = fNac.mes;
+		nuevoPaciente->Fecha_Nac.mes = fNac.mes;
 		cout<<"\tAnio: ";
 		fNac.anio = obtener_entero(1900,2100);
 		pac.Fecha_Nac.anio = fNac.anio;
+		nuevoPaciente->Fecha_Nac.anio = fNac.anio;
 		fflush(stdin);
 
 		cout<< "\tTelefono: ";
 		telef=obtener_entero();
 		pac.telefono=telef;
+		nuevoPaciente->telefono=telef;
 		cout<< "\tSeguro: ";
 		cout<< "\n\t\tCuenta con Seguro......[1]";
 		cout<< "\n\t\tNo cuenta con Seguro...[2]";
@@ -1210,16 +1231,19 @@ void opcion_crear_paciente(void){
 			case 1:
 				segur1="Si";
 				strcpy(pac.Seguro,segur1.c_str());
+				strcpy(nuevoPaciente->Seguro,segur1.c_str());
 				break;
 			case 2:
 				segur1="No";
 				strcpy(pac.Seguro,segur1.c_str());
+				strcpy(nuevoPaciente->Seguro,segur1.c_str());
 				break;
 		}
 
 		cout<< "\tProblemas Medicos: ";
 		getline(cin,problem);
 		strcpy(pac.Problemas_Medicos,problem.c_str());
+		strcpy(nuevoPaciente->Problemas_Medicos,problem.c_str());
 
 		if (insertar_paciente_archivo(pac)) {
 			cout << "\n\tLos datos fueron agregados satisfactoriamente" << endl;
