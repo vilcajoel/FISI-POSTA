@@ -58,14 +58,15 @@ struct Cita {
 	Hora horaCita;
 }* primero, * ultimo;
 
-struct Consulta{	
+struct Consulta{
+	Consulta* siguiente;	
 	int codigoHist;
 	char signos[200];
 	char sintomas[200];
 	char resultados[200];
 	char diagnostico[200];
 	
-};
+}* prime, * ulti;
 
 struct Receta{
 	int codigoCit;
@@ -1401,7 +1402,7 @@ void menu_consulta_opciones(void) {
 }
 
 void opcion_realizar_consulta(void){
-	
+	Consulta* nuevaConsulta = new Consulta();
 	int codigoCit;
 	bool repetir, existe;
 	string signos,sintomas,resultados,diagnostico,medicamentos,instrucciones,respuesta;
@@ -1419,24 +1420,38 @@ void opcion_realizar_consulta(void){
 	if (!existe) {
 		cout <<"\n\tNo ha sacado cita aun."<<endl;
 	} else {
-
+		if(prime==NULL){
+			prime=nuevaConsulta;
+			primero->siguiente=NULL;
+			ulti= prime;
+		}else{
+			ulti->siguiente = nuevaConsulta;
+			nuevaConsulta->siguiente = NULL;
+			ulti=nuevaConsulta;
+		}
+		
 		cons.codigoHist = cit.DNI;
-
+		
+		nuevaConsulta->codigoHist=cit.DNI;
 		cout << "\tIngrese los signos: ";
 		getline(cin,signos);
 		strcpy(cons.signos,signos.c_str());
+		
 
 		cout << "\tIngrese los sintomas: ";
 		getline(cin,sintomas);
 		strcpy(cons.sintomas,sintomas.c_str());
+		strcpy(nuevaConsulta->sintomas,sintomas.c_str());
 
 		cout<< "\tIngrese los resultados: ";
 		getline(cin,resultados);
 		strcpy(cons.resultados,resultados.c_str());
+		strcpy(nuevaConsulta->resultados,resultados.c_str());
 
 		cout<< "\tIngrese el diagnostico: ";
 		getline(cin,diagnostico);
 		strcpy(cons.diagnostico,diagnostico.c_str());
+		strcpy(nuevaConsulta->diagnostico,diagnostico.c_str());
 
 		if (insertar_consulta_archivo(cons)) {
 			cout << "\n\tLa consulta fue registrada satisfactoriamente." << endl;
@@ -1454,7 +1469,7 @@ void opcion_realizar_consulta(void){
 		cout << "\n\tIngrese los medicamentos: ";
 		getline(cin,medicamentos);
 		strcpy(rec.medicamentos,medicamentos.c_str());
-
+		
 		cout << "\tIngrese las instrucciones: ";
 		getline(cin,instrucciones);
 		strcpy(rec.instrucciones,instrucciones.c_str());
