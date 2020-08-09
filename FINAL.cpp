@@ -1,8 +1,9 @@
 #include <iostream>
-#include <cstring>
 #include <cstdlib>
 #include <ctime>
-#include <string.h>
+#include <cstring>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -11,11 +12,14 @@ struct Fecha{
 	int mes;
 	int anio;
 };
+
 struct Hora{
 	int hora;
 	int minutos;
 };
-struct Paciente{	
+
+struct Paciente{
+	Paciente* siguiente;
 	char Apellido_Paterno[15];
 	char Apellido_Materno[15];
 	char Nombres[25];
@@ -27,11 +31,13 @@ struct Paciente{
 	char Seguro[10];
 	char Problemas_Medicos[200];
 };
+
 struct Historial{
 	int codigoHist;
 	int DNI;
 	Fecha fechaHist;
 };
+
 struct Medico {
 	int DNI;
 	char nombre[25];
@@ -39,18 +45,20 @@ struct Medico {
 	char apellidoM[25];
 	int telefono;
 	char correoElectronico[25];
-	char centroDeEstudio[30];
+	char centroDeEstudio[49];
 	char especialidad[25];
 };
+
 struct Cita {
+	Cita* siguiente;
 	int codigoCit;
 	int DNI;
 	char Especialidad[25];
 	Fecha fechaCita;
 	Hora horaCita;
-};
-struct Consulta{
-	
+}* primero, * ultimo;
+
+struct Consulta{	
 	int codigoHist;
 	char signos[200];
 	char sintomas[200];
@@ -58,71 +66,83 @@ struct Consulta{
 	char diagnostico[200];
 	
 };
+
 struct Receta{
 	int codigoCit;
 	char medicamentos[200];
-	char instrucciones[200];	
+	char instrucciones[200];
 };
 
 void menu_principal();
-
 void menu_medico();
 void menu_medico_opciones();
+
 void opcion_crear_medico();
 bool insertar_medico_archivo(Medico user);
-void existe_medico(bool &existe,int codigo,Medico *user);
+void existe_medico(bool &existe, int codigo,Medico *user);
+
 void opcion_mostrar_medico();
 Medico *obtener_stu_archivo(int *n);
 bool modificar_archivo_medico(Medico user);
 
-
 void menu_paciente();
 void menu_paciente_opciones(void);
+
 void opcion_crear_paciente();
 bool insertar_paciente_archivo(Paciente pac);
-void existe_paciente(bool &existe,int DNI,Paciente *pac);
+void existe_paciente(bool &existe, int DNI,Paciente *pac);
+
 void opcion_mostrar_paciente();
 Paciente *obtener_pac_archivo(int *n);
 
 
 void menu_consulta();
 void menu_consulta_opciones(void);
+
 void opcion_realizar_consulta();
 bool insertar_consulta_archivo(Consulta cons);
-void existe_consulta(bool &existe,int DNI,Paciente *pac);
+
 void opcion_mostrar_consulta();
 Consulta *obtener_cons_archivo(int *n);
 
 
 void menu_receta();
 void menu_receta_opciones(void);
+
 bool insertar_receta_archivo(Receta rec);
+
 void opcion_mostrar_receta();
 Receta *obtener_rec_archivo(int *n);
 
 
 void menu_historial();
 void menu_historial_opciones(void);
+
 void opcion_mostrar_historial();
 Historial *obtener_his_archivo(int *n);
+
 int obtener_edad(Paciente pac);
 
 
 void menu_cita();
 void menu_cita_opciones();
-void opcion_crear_archivo(FILE *archivoCita,char nombreArchivo[20]);
+
+void opcion_crear_archivo(FILE *archivoCita, char nombreArchivo[20]);
+
 void opcion_agregar_cita();
 bool insertar_cita_archivo(Cita cit);
-void existe_cita(bool &existe,int codigoCit, Cita *cit);
+void existe_cita(bool &existe, int codigoCit, Cita *cit);
 bool doctor_libre(char Especialidad[25],Fecha fCita, Hora hCita);
-void existe_historial(bool &existe,int DNI,Historial *hist);
+void existe_historial(bool existe, int DNI,Historial *hist); // posible eliminacion
 bool existe_especialidad(char Especialidad[25]);
+
 void opcion_mostrar_cita();
 Cita *obtener_array_cita(int *n);
 
 
 void menu_reportes();
 void menu_reportes_opciones();
+
 void opcion_especialidad_masolicitada();
 void opcion_promedio_edad();
 void opcion_promedio_edad_x_especialidad();
@@ -133,17 +153,19 @@ int obtener_entero(int inf, int sup);
 bool es_entero_valido(string str);
 double obtener_flotante();
 bool es_flotante_valido(string str);
+
 bool fecha_rango_valido(Fecha fCita);
 bool hora_rango_valido(Hora hCita);
 bool fecha_valida(Fecha fCita,Hora hCita);
 
-
+void limpiar_pantalla();
 void pausar_pantalla();
 void titulo_principal(void);
 
 
-int main(){	
-	menu_principal();	
+int main()
+{	
+	menu_principal();
 	return 0;
 }
 
@@ -184,8 +206,9 @@ void menu_principal() {
 		}
 	} while (se_repite);
 }
+
 void menu_principal_opciones(void) {
-	system("cls");
+  limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\t\t\tMENU PRINCIPAL\n";
 	cout << "\n\t\t[1]. Medicos\n";
@@ -199,7 +222,6 @@ void menu_principal_opciones(void) {
 	cout << "\n\t\tIngrese una opcion: ";
 }
 
-
 void menu_cita() {
 	bool se_repite = true;
 	int opcion;
@@ -212,7 +234,7 @@ void menu_cita() {
 
 		switch (opcion) {
 			case 1:
-				opcion_crear_archivo(aCita,nombreArchivo);
+				opcion_crear_archivo(aCita, nombreArchivo);
 				break;
 			case 2:
 				opcion_agregar_cita();
@@ -226,8 +248,9 @@ void menu_cita() {
 		}
 	} while (se_repite);
 }
+
 void menu_cita_opciones() {
-	system("cls");
+  limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\t\t\tMENU CITAS\n";
 	cout << "\n\t\t[1]. Crear archivo citas\n";
@@ -236,199 +259,188 @@ void menu_cita_opciones() {
 	cout << "\t\t[4]. Volver al menu principal\n";
 	cout << "\n\t\tIngrese una opcion: ";
 }
-void opcion_crear_archivo(FILE *archivoCita,char nombreArchivo[20]){
+
+void opcion_crear_archivo(FILE *archivoCita,char nombreArchivo[20]) {
 	archivoCita = fopen(nombreArchivo,"wb");
 	
 	if(archivoCita == NULL)
 	{
-		system("cls");
+		limpiar_pantalla();
 		titulo_principal();
 		cout<<"\n\tEl archivo no se pudo crear."<<endl;
 		pausar_pantalla();
 	}
 	else
 	{
-		system("cls");
+		limpiar_pantalla();
 		titulo_principal();
 		cout<<"\n\tEl archivo se creo correctamente. "<<endl;
 		pausar_pantalla();
 	}
 }
-void opcion_agregar_cita(){
+
+void opcion_agregar_cita() {
 	Cita cit;
-	bool l,s,e;
+	Cita* nuevaCita = new Cita();
 	Paciente pac;
 	int DNI,tipoSer,codigoCit,opcionTipoEsp,edad;
 	Fecha fCita;
 	Hora hCita;
 	string respuesta;
-	bool ninio = true,mujer = true,se_repite = true;
+	bool ninio = true,mujer = true,se_repite = true, existe;
 	char med[30] = "Medicina General", ped[30] = "Pediatria", gin[30] = "Ginecologia";
-	existe_cita(l,codigoCit,&cit);
 	
-	do {
-		system("cls");
-		titulo_principal();
-		cout << "\n\t\tCREAR NUEVA CITA\n";
-		
-		cout << "\tIngresa el Codigo de la cita: ";
-		codigoCit = obtener_entero();
-		
-		if(l)
-		{
-			cout<<"\n\tEsta cita ya existe"<<endl;
+	
+	limpiar_pantalla();
+	titulo_principal();
+	cout << "\n\t\tCREAR NUEVA CITA\n";
+
+	cout << "\tIngresa el Codigo de la cita: ";
+	codigoCit = obtener_entero();
+	existe_cita(existe, codigoCit, &cit);
+
+	if(existe)
+	{
+		cout<<"\n\tEsta cita ya existe"<<endl;
+	} else {
+		if(primero==NULL){
+			primero=nuevaCita;
+			primero->siguiente=NULL;
+			ultimo= primero;		 //SE UTILIZA LA ESTRUCTURA DE DATOS COLA, PARA SIMULAR A LAS COLAS DE PACIENTES QUE BUSCAN UNA CITA EN LA CLINICA
 		}else{
-			
-			cout << "\tIngresa el DNI del usuario: ";
-			DNI = obtener_entero();
-			existe_paciente(s,DNI,&pac);
-			if (s) 
-			{
-		
+			ultimo->siguiente = nuevaCita;
+			nuevaCita->siguiente = NULL;
+			ultimo=nuevaCita;	
+		}
+		cout << "\tIngresa el DNI del usuario: ";
+		DNI = obtener_entero();
+		existe_paciente(existe, DNI, &pac);
+
+		if (existe){
 			cit.codigoCit = codigoCit;
 			cit.DNI = DNI;
-			
+			nuevaCita->codigoCit=codigoCit;
+			nuevaCita->DNI=DNI;
 			do {
 				ninio = true,mujer = true;
-				system("cls");
+				limpiar_pantalla();
 				titulo_principal();
 				cout << "\n\t\tCREAR NUEVA CITA\n";
 				cout << "\tIngresa el Codigo de la cita: "<<codigoCit<<endl;
 				cout << "\tIngresa el DNI del usuario: "<<DNI<<endl;
-					
+
 				cout<<"\n\tSeleccione la Especialidad: "<<endl;
-			
+
 				cout<<"\n\t1.- Medicina General."<<endl;
 				cout<<"\t2.- Pediatria."<<endl;
 				cout<<"\t3.- Ginecologia."<<endl;
 				cout<<"\tDigite la opcion: ";
-			
+
 				opcionTipoEsp = obtener_entero(1,3);
-			
-				switch(opcionTipoEsp)
-				{
+
+				switch(opcionTipoEsp) {
 					case 1:
 						strcpy(cit.Especialidad,med);
+						strcpy(nuevaCita->Especialidad,med);
 						break;
 					case 2:
 						strcpy(cit.Especialidad,ped);
+						strcpy(nuevaCita->Especialidad,ped);
 						break;
 					case 3:
 						strcpy(cit.Especialidad,gin);
+						strcpy(nuevaCita->Especialidad,gin);
 						break;
 				}
-			
-				if(!(existe_especialidad(cit.Especialidad)))
-				{
+
+				if(!existe_especialidad(cit.Especialidad)) {
 					cout<<"\n\tEspecialidad no disponible"<<endl;
 					cout<<"\n\t";
-					system("pause");
-				}else
-				{
-											
-				if(opcionTipoEsp == 2)
-				{
-					if(obtener_edad(pac) > 12)
-					{
-						cout<<"\n\tSolo los niños pueden acceder a Pediatria. "<<endl;
-						cout<<"\n\t";
-						system("pause");
-						ninio = false;	
-					}	
-				}else if(opcionTipoEsp == 3)
-				{
-					if(pac.Genero != 'F')
-					{
-						cout<<"\n\tSolo las mujeres pueden acceder a Ginecologia. "<<endl;
-						cout<<"\n\t";
-						system("pause");
-						mujer = false;
-					}	
-				} 
-	
+					pausar_pantalla();
+				} else {
+					if(opcionTipoEsp == 2) {
+						if(obtener_edad(pac) > 12) {
+							cout<<"\n\tSolo los niños pueden acceder a Pediatria. "<<endl;
+							cout<<"\n\t";
+							pausar_pantalla();
+							ninio = false;	
+						}
+					}	 
 				}
 			}while(!ninio || !mujer);
-			
-			if(existe_especialidad(cit.Especialidad));
-			{			
+
+			if(existe_especialidad(cit.Especialidad)) {
 				cout << "\n\tDigite la fecha de la cita: ";
-			
 				cout<<"\n\tDia: ";
 				fCita.dia = obtener_entero();
 				cout<<"\tMes: ";
 				fCita.mes = obtener_entero();
 				cout<<"\tAño: ";
 				fCita.anio = obtener_entero();
-			
-				do{
-					system("cls");
+				do {
+					limpiar_pantalla();
 					titulo_principal();
 					cout << "\n\t\tCREAR NUEVA CITA\n";
 					cout << "\tIngresa el Codigo de la cita: "<<codigoCit<<endl;
 					cout << "\tIngresa el DNI del usuario: "<<DNI<<endl;
-					
+
 					cout<<"\n\tSeleccione la Especialidad: "<<endl;
-			
+
 					cout<<"\n\t1.- Medicina General."<<endl;
 					cout<<"\t2.- Pediatria."<<endl;
 					cout<<"\t3.- Ginecologia."<<endl;
 					cout<<"\tDigite la opcion: "<<opcionTipoEsp<<endl;
-				
+
 					cout << "\n\tDigite la fecha de la cita: ";
 					cout<<"\n\tDia: "<<fCita.dia;
 					cout<<"\n\tMes: "<<fCita.mes;
 					cout<<"\n\tAño: "<<fCita.anio;
-				
+
 					cout<< "\n\tDigite la hora de la cita: ";
-			
+
 					cout<<"\n\tHora: ";
 					hCita.hora = obtener_entero();
 					cout<<"\tMinutos: ";
 					hCita.minutos = obtener_entero();
-			
+
 					cit.horaCita.minutos = hCita.minutos;
 					cit.horaCita.hora = hCita.hora;
 					cit.fechaCita.dia = fCita.dia;
 					cit.fechaCita.mes = fCita.mes;
 					cit.fechaCita.anio = fCita.anio;
-					fflush(stdin);
-				
-					if(!doctor_libre(cit.Especialidad,fCita,hCita))
-					{	
+					
+					nuevaCita->horaCita.minutos = hCita.minutos;
+					nuevaCita->horaCita.hora = hCita.hora;
+					nuevaCita->fechaCita.dia = fCita.dia;
+					nuevaCita->fechaCita.mes = fCita.mes;
+					nuevaCita->fechaCita.anio = fCita.anio;
+
+					if(!doctor_libre(cit.Especialidad,fCita,hCita)) {
 						cout<<"\n\tEl doctor no esta disponible a esa hora, digite otra ";
 						cout<<"\n\t";
-						system("pause");
+						pausar_pantalla();
 					}
-			
 				}while(!doctor_libre(cit.Especialidad,fCita,hCita));
-			
-				if(!fecha_valida(fCita,hCita) || !fecha_rango_valido(fCita) || !hora_rango_valido(hCita))
-				{
+
+				if(!fecha_valida(fCita,hCita) || !fecha_rango_valido(fCita) || !hora_rango_valido(hCita)) {
 					cout << "\n\tLa fecha de la cita es incorrecta." << endl;	
-				}else if (insertar_cita_archivo(cit)) 
-				{
+					pausar_pantalla();
+				} else if(insertar_cita_archivo(cit)) {
 					cout << "\n\tLa cita fue creada satisfactoriamente" << endl;
-				}else
-				{
+					pausar_pantalla();
+				} else {
 					cout<< "\n\tLa cita no se pudo crear correctamente, intentelo mas tarde " << endl;
+					pausar_pantalla();
 				}
-			}	
+			}
 		} else {
 			cout << "\n\tEl paciente no existe" << endl;
 			cout << "\tIntentelo nuevamente" << endl;
-				}
+			pausar_pantalla();
 		}
-		
-		cout << "\n\tDesea continuar? [S/n]: ";
-		getline(cin, respuesta);
-		
-		if (!(respuesta.compare("s") == 0 || respuesta.compare("S") == 0))
-			se_repite = false;
-		else
-			menu_principal();
-		
-	} while (se_repite);	
+	}
 }
+
 bool insertar_cita_archivo(Cita cit) {
 	FILE *archivo;
 	bool insercion;
@@ -445,7 +457,9 @@ bool insertar_cita_archivo(Cita cit) {
 
 	return insercion;
 }
-bool fecha_valida(Fecha fCita,Hora hCita){
+
+bool fecha_valida(Fecha fCita,Hora hCita)
+{
 	Fecha fActual;
 	Hora hActual;
 	bool fValida = true;
@@ -483,6 +497,7 @@ bool fecha_valida(Fecha fCita,Hora hCita){
 	
 	return fValida;
 }
+
 Cita *obtener_array_cita(int *n) {
 	FILE *archivo;
 	Cita cita;
@@ -510,7 +525,9 @@ Cita *obtener_array_cita(int *n) {
 	}
 	return citas;
 }
-bool fecha_rango_valido(Fecha fCita){
+
+bool fecha_rango_valido(Fecha fCita)
+{
 	bool rango_valido = true;
 	bool bisiesto;
 	
@@ -552,7 +569,9 @@ bool fecha_rango_valido(Fecha fCita){
         
 	return rango_valido;
 }
-bool hora_rango_valido(Hora hCita){
+
+bool hora_rango_valido(Hora hCita)
+{
 	bool rango_valido = true;
 	
 	if(hCita.hora > 24 || hCita.hora < 0 || hCita.minutos > 60 || hCita.minutos < 0)
@@ -560,9 +579,9 @@ bool hora_rango_valido(Hora hCita){
 		
 	return rango_valido;
 }
-void existe_cita(bool &existe,int codigoCit, Cita *cit) {
+
+void existe_cita(bool &existe, int codigoCit, Cita *cit) {
 	FILE *archivo;
-	
 
 	archivo = fopen("citas.dat", "rb");
 
@@ -577,10 +596,11 @@ void existe_cita(bool &existe,int codigoCit, Cita *cit) {
 		}
 		fclose(archivo);
 	}
-}
-void existe_historial(bool &existe,int codigo_historial, Historial *hist) {
-	FILE *archivo;
 	
+}
+
+void existe_historial(bool &existe, int codigo_historial, Historial *hist) {
+	FILE *archivo;
 
 	archivo = fopen("historial.dat", "rb");
 
@@ -597,7 +617,9 @@ void existe_historial(bool &existe,int codigo_historial, Historial *hist) {
 	}
 	
 }
-bool doctor_libre(char Especialidad[30],Fecha fCita,Hora hCita){
+
+bool doctor_libre(char Especialidad[30],Fecha fCita,Hora hCita)
+{
 	bool doctorLibre = true;
 	int minsCit,minsCitas,n;
 	minsCit = hCita.hora*60 + hCita.minutos;
@@ -619,10 +641,13 @@ bool doctor_libre(char Especialidad[30],Fecha fCita,Hora hCita){
 	}
 	return doctorLibre;
 }
-bool existe_especialidad(char Especialidad[25]){
+
+bool existe_especialidad(char Especialidad[25])
+{
+	bool existe_esp = false;
 	Medico *med;
 	int n;
-	bool existe_esp;
+	
 	med = obtener_stu_archivo(&n);
 	
 	for(int i=0;i<n;i++)
@@ -630,15 +655,16 @@ bool existe_especialidad(char Especialidad[25]){
 		if(strcmp(med[i].especialidad,Especialidad)==0)
 			existe_esp = true;
 	}
+
 	return existe_esp;
-
-
 }
-void opcion_mostrar_cita() {
+void opcion_mostrar_cita(){
+	
 	Cita *citas;
 	int nro_citas;
-
-	system("cls");
+	stringstream ss;
+	string fecha_completa;
+	limpiar_pantalla();
 	titulo_principal();
 	citas = obtener_array_cita(&nro_citas);
 
@@ -646,23 +672,27 @@ void opcion_mostrar_cita() {
 		cout << "\n\tEl archivo esta vacio" << endl;
 		pausar_pantalla();
 	} else {
-
 		cout << "\n\t\t\t\tCITAS REGISTRADAS\n";
-		cout << "\n\t   ------------------------------------------------------------\n";
-		for (int i = 0; i < nro_citas; i++) {
-				
-				cout << "\t\tCodigo de la cita: " << citas[i].codigoCit << endl;
-				cout << "\t\tDNI del paciente: " << citas[i].DNI << endl;
-				cout << "\t\tEspecialidad: " << citas[i].Especialidad << endl;
-				cout << "\t\tFecha de la cita: " << citas[i].fechaCita.dia << "/"<< citas[i].fechaCita.mes << "/" << citas[i].fechaCita.anio << endl;
-				cout << "\t\tHora de la cita: "<<citas[i].horaCita.hora << ":" << citas[i].horaCita.minutos << endl;
-			
-			cout << "\n\t   ------------------------------------------------------------\n";
+		cout << "  " << setw(5) << setiosflags(ios::left) << "Cod";
+		cout << setw(10) << setiosflags(ios::left) << "DNI";
+		cout << setw(18) << setiosflags(ios::left) << "Especialidad";
+		cout << setw(18) << setiosflags(ios::left) << "Fecha" << endl;
+		for (int i = 0; i < nro_citas; i++){
+			ss.str("");
+			ss << setw(2) << setfill('0') << citas[i].fechaCita.dia << "-"
+				 << setw(2) << setfill('0') << citas[i].fechaCita.mes << "-"
+				 << setw(4) << citas[i].fechaCita.anio << " "
+				 << setw(2) << setfill('0') << citas[i].horaCita.hora << ":"
+				 << setw(2) << setfill('0') << citas[i].horaCita.minutos;
+			fecha_completa = ss.str();
+			cout << "  " << setw(5) << setiosflags(ios::left) << citas[i].codigoCit;
+			cout << setw(10) << setiosflags(ios::left) << citas[i].DNI;
+			cout << setw(18) << setiosflags(ios::left) << citas[i].Especialidad;
+			cout << setw(18) << setiosflags(ios::left) << fecha_completa << endl;
 		}
 		pausar_pantalla();
 	}
 }
-
 
 void menu_medico() {
 	bool se_repite = true;
@@ -676,7 +706,7 @@ void menu_medico() {
 		switch(opcion){
 			case 1:
 				opcion_crear_archivo(archivo,med);
-				break;		
+				break;
 			case 2:
 				opcion_crear_medico();
 				break;
@@ -693,9 +723,10 @@ void menu_medico() {
 	menu_medico_opciones();
 	
 }
+
 void menu_medico_opciones(){
 	
-	system("cls");
+	limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\t\t\tMENU MEDICOS\n";
 	cout << "\n\t\t[1]. Crear archivo medico";
@@ -705,19 +736,20 @@ void menu_medico_opciones(){
 	cout << "\n\t\tIngrese una opcion: ";
 	
 }
+
 void opcion_crear_medico(){
-	bool se_repite=true,l;
+	bool se_repite=true, existe;
 	Medico user;
 	int tipo,DNI,Telefono,Sueldo;
 	string nombre,aPaterno,aMaterno,correo,centro,tipoEspecialidad,contra,opc;
-	do{
-		system("cls");
-		titulo_principal();
-		cout << "\n\t\tingresar NUEVO MEDICO\n";
-		cout << "\n\tIngresa el DNI del medico: ";
-		DNI=obtener_entero();
-		existe_medico(l,DNI,&user);
-		if(!l){
+
+	limpiar_pantalla();
+	titulo_principal();
+	cout << "\n\t\tingresar NUEVO MEDICO\n";
+	cout << "\n\tIngresa el DNI del medico: ";
+	DNI=obtener_entero();
+	existe_medico(existe, DNI, &user);
+	if(!existe) {
 		user.DNI=DNI;
 		cout << "\tIngresa el Nombre del medico: ";
 		getline(cin,nombre);
@@ -755,31 +787,21 @@ void opcion_crear_medico(){
 				break;
 		}
 	
-		if(insertar_medico_archivo(user)){
+		if(insertar_medico_archivo(user)) {
 			cout << "\n\t\t\t\t\tEl Medico fue creado con exito";
-		}else{
+			pausar_pantalla();
+		} else {
 			cout << "\n\tOcurrio un error al intentar crear el Medico" << endl;
 			cout << "\tIntentelo nuevamente" << endl;
+			pausar_pantalla();
 		}
-	}else{
+	} else {
 		cout << "\n\tEl Medico con DNI " << DNI << " ya existe.\n";
 		cout << "\t  No puede ingresar dos Medicos con el mismo DNI" << endl;
+		pausar_pantalla();
 	}
-		cout <<" ";
-		cout << "\n\t\t\t\tDesea continuar? [S/n]: ";
-		fflush(stdin);
-		getline(cin,opc);
-		if(!(opc.compare("S")==0 || opc.compare("s")==0)){
-			se_repite=false;
-		}
-
-	menu_medico();
-	
-	}while(se_repite);
-	
-	menu_principal();
-	
 }
+
 bool insertar_medico_archivo(Medico user){
 	FILE *datosMedico;
 	bool agregado;
@@ -793,7 +815,7 @@ bool insertar_medico_archivo(Medico user){
 	}
 	return agregado;
 }
-void existe_medico(bool &existe,int DNI,Medico *user){
+void existe_medico(bool &existe, int DNI,Medico *user){
 	FILE* datosMedico;
 	
 	datosMedico=fopen("datosDeMedico.dat","rb");
@@ -808,13 +830,14 @@ void existe_medico(bool &existe,int DNI,Medico *user){
 		}
 		fclose(datosMedico);
 	}
-	
 }
 void opcion_mostrar_medico(){
+	
 	Medico *medicos;
 	int nro_medicos;
+  string nombre_completo;
 
-	system("cls");
+	limpiar_pantalla();
 	titulo_principal();
 	medicos = obtener_stu_archivo(&nro_medicos);
 
@@ -824,21 +847,24 @@ void opcion_mostrar_medico(){
 	} else {
 
 		cout << "\n\t\t\t\tMEDICOS REGISTRADOS\n";
-		cout << "\n\t   ------------------------------------------------------------\n";
+    cout << "  " << setw(35) << setiosflags(ios::left) << "Nombre"
+         << setw(18) << setiosflags(ios::left) << "Especialidad ";
+    cout << setw(10) << setiosflags(ios::left) << "DNI ";
+    cout << setw(12) << setiosflags(ios::left) << "Telefono";
+    cout << setw(20) << setiosflags(ios::left) << "Centro de estudios " << endl;
 		for (int i = 0; i < nro_medicos; i++) {
-				cout << "\t\t"<<medicos[i].nombre <<" "<< medicos[i].apellidoP <<" "<< medicos[i].apellidoM  << endl;
-				cout << "\n\t\tEspecialidad: " << medicos[i].especialidad << endl;
-				cout << "\t\tNro DNI: " << medicos[i].DNI << endl;
-				cout << "\t\tNumero Telefonico: " << medicos[i].telefono << endl;
-				cout << "\t\tCentro de estudio: " << medicos[i].centroDeEstudio << endl;
-			
-			cout << "\n\t   ------------------------------------------------------------\n";
+			nombre_completo = string(medicos[i].nombre) + " " + string(medicos[i].apellidoP) + " " + string(medicos[i].apellidoM);
+			cout << "  " << setw(35) << setiosflags(ios::left) << nombre_completo;
+			cout << setw(18) << setiosflags(ios::left) << medicos[i].especialidad;
+			cout << setw(10) << setiosflags(ios::left) << medicos[i].DNI;
+			cout << setw(12) << setiosflags(ios::left) << medicos[i].telefono;
+			cout << setw(20) << setiosflags(ios::left) << medicos[i].centroDeEstudio << endl;
 		}
 		pausar_pantalla();
 	}
-	
 }
 Medico *obtener_stu_archivo(int *n) {
+	
 	FILE *archivo;
 	Medico medico;
 	Medico *medicos;
@@ -865,7 +891,9 @@ Medico *obtener_stu_archivo(int *n) {
 	}
 	return medicos;
 }
+
 bool modificar_archivo_medico(Medico user) {
+	
 	FILE *archivo;
 	bool modificado;
 	Medico medico;
@@ -889,9 +917,8 @@ bool modificar_archivo_medico(Medico user) {
 	return modificado;
 }
 
-
 void opcion_mostrar_historial() {
-	bool p;
+	bool existe;
 	Paciente pac;
 	Cita *cit;
 	Consulta *cons;
@@ -901,13 +928,14 @@ void opcion_mostrar_historial() {
 	cit = obtener_array_cita(&num_cit);
 	cons = obtener_cons_archivo(&num_cons);
 	
-	system("cls");
+	limpiar_pantalla();
 	titulo_principal();
 	
 	cout<<"\n\tDigite el numero de DNI del paciente: ";
 	dni = obtener_entero();
-	existe_paciente(p,dni,&pac);
-	if(p)
+	existe_paciente(existe, dni, &pac);
+	
+	if(existe)
 	{
 		cout<<"\n\tNombres: "<<pac.Nombres<<endl;
 		cout<<"\tApellido Paterno: "<<pac.Apellido_Paterno<<endl;
@@ -950,7 +978,9 @@ void opcion_mostrar_historial() {
 	
 	pausar_pantalla();
 }
-int obtener_edad(Paciente pac){
+
+int obtener_edad(Paciente pac)
+{
 	Fecha fActual;
 	Hora hActual;
 	int edad;
@@ -970,7 +1000,9 @@ int obtener_edad(Paciente pac){
 		
 	return edad;
 }
+
 bool insertar_historial_archivo(Historial hist) {
+	
 	FILE *archivo;
 	bool insercion;
 
@@ -985,7 +1017,9 @@ bool insertar_historial_archivo(Historial hist) {
 	}
 	return insercion;
 }
+
 Historial *obtener_his_archivo(int *n) {
+	
 	FILE *archivo;
 	Historial historial;
 	Historial *historiales;
@@ -1012,8 +1046,10 @@ Historial *obtener_his_archivo(int *n) {
 	}
 	return historiales;
 }
+
 void menu_historial_opciones(void) {
-	system("cls");
+
+  limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\t\t\tMENU HISTORIAL MEDICO\n";
 	cout << "\n\t\t[1]. Mostrar historial medico\n";
@@ -1021,6 +1057,7 @@ void menu_historial_opciones(void) {
 	cout << "\n\t\tIngrese una opcion: ";
 }
 void menu_historial() {
+	
 	bool repetir = true;
 	int opcion;
 
@@ -1038,11 +1075,11 @@ void menu_historial() {
 	} while (repetir);
 }
 
-
 void menu_paciente() {
+	
 	bool repetir = true;
 	FILE* archivo;
-	char paciente[20]="paciente.dat";
+	char paciente[13]="paciente.dat";
 	int opcion;
 
 	do {
@@ -1050,8 +1087,8 @@ void menu_paciente() {
 		opcion = obtener_entero();
 		switch (opcion) {
 			case 1:
-				opcion_crear_archivo(archivo,paciente);
-				break;					
+				opcion_crear_archivo(archivo, paciente);
+				break;
 			case 2:
 				opcion_crear_paciente();
 				break;
@@ -1064,8 +1101,10 @@ void menu_paciente() {
 		}
 	} while (repetir);
 }
+
 void menu_paciente_opciones(void) {
-	system("cls");
+	
+  limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\t\t\tMENU PACIENTES\n";
 	cout << "\n\t\t[1]. Crear archivo paciente\n";
@@ -1074,25 +1113,27 @@ void menu_paciente_opciones(void) {
 	cout << "\t\t[4]. Volver al menu principal\n";
 	cout << "\n\t\tIngrese una opcion: ";
 }
+
 void opcion_crear_paciente(void){
+	Paciente* paciente=new Paciente();
 	Paciente pac;
-	bool p;
+	bool existe;
 	string rspta,apelli1,apelli2,nombres,nacim,cita,problem;
 	string hosp,aler,medi,estad1,segur1,gmail;
 	bool repetir=true;
 	int edad,genero,estado,seguro,dniPac,telef;
 	string respuesta;
 	Fecha fNac;
-	do {
-		system("cls");
-		titulo_principal();
-		cout << "\n\t\tAGREGAR PACIENTE\n";
-		cout<< "\tIngrese el DNI del paciente: ";
-		dniPac=obtener_entero();
-		existe_paciente(p,dniPac, &pac);
-		if (p) {
-			cout <<"\n\tEste paciente ya existe."<<endl;
-		}else{
+	limpiar_pantalla();
+	titulo_principal();
+	cout << "\n\t\tAGREGAR PACIENTE\n";
+	cout<< "\tIngrese el DNI del paciente: ";
+	dniPac=obtener_entero();
+	existe_paciente(existe, dniPac, &pac);
+	if (existe) {
+		cout <<"\n\tEste paciente ya existe."<<endl;
+		pausar_pantalla();
+	} else {
 		pac.DNI = dniPac;	
 		cout << "\tApellido Paterno: ";
 		getline(cin,apelli1);
@@ -1103,101 +1144,95 @@ void opcion_crear_paciente(void){
 		cout<< "\tNombres: ";
 		getline(cin,nombres);
 		strcpy(pac.Nombres,nombres.c_str());
-        cout<< "\tEstado Civil: ";
-        cout<< "\n\t\tSoltero.....[1]";
-        cout<< "\n\t\tCasado......[2]";
-        cout<< "\n\t\tViudo.......[3]";
-        cout<< "\n\t\tDivorciado..[4]";
-        cout<< "\n\t\tDigite opcion: ";
-        estado=obtener_entero(1,4);
-        switch(estado){
-        	case 1:
-        		estad1="Soltero";
-        		strcpy(pac.Estado_Civil,estad1.c_str());
-        		break;
-        	case 2:
-        		estad1="Casado";
-        		strcpy(pac.Estado_Civil,estad1.c_str());
-        		break;
-        	case 3:
-        		estad1="Viudo";
-        		strcpy(pac.Estado_Civil,estad1.c_str());
-        		break;
-        	case 4:
-        		estad1="Divorciado";
-        		strcpy(pac.Estado_Civil,estad1.c_str());
-        		break;
+		cout<< "\tEstado Civil: ";
+		cout<< "\n\t\tSoltero.....[1]";
+		cout<< "\n\t\tCasado......[2]";
+		cout<< "\n\t\tViudo.......[3]";
+		cout<< "\n\t\tDivorciado..[4]";
+		cout<< "\n\t\tDigite opcion: ";
+		estado=obtener_entero(1,4);
+		switch(estado){
+			case 1:
+				estad1="Soltero";
+				strcpy(pac.Estado_Civil,estad1.c_str());
+				break;
+			case 2:
+				estad1="Casado";
+				strcpy(pac.Estado_Civil,estad1.c_str());
+				break;
+			case 3:
+				estad1="Viudo";
+				strcpy(pac.Estado_Civil,estad1.c_str());
+				break;
+			case 4:
+				estad1="Divorciado";
+				strcpy(pac.Estado_Civil,estad1.c_str());
+				break;
 		}
-        cout<< "\tGenero: ";
-        cout<< "\n\t\tFemenino.....[1]";
-        cout<< "\n\t\tMasculino....[2]";
-        cout<< "\n\t\tDigite opcion: ";
-        genero=obtener_entero(1,2);
-        switch(genero){
-        	case 1: 
-        		pac.Genero = 'F';
-        		break;
-        	case 2:
-        		pac.Genero = 'M';
-        		break;
+		cout<< "\tGenero: ";
+		cout<< "\n\t\tFemenino.....[1]";
+		cout<< "\n\t\tMasculino....[2]";
+		cout<< "\n\t\tDigite opcion: ";
+		genero=obtener_entero(1,2);
+
+		switch(genero) {
+			case 1: 
+				pac.Genero = 'F';
+				break;
+			case 2:
+				pac.Genero = 'M';
+				break;
 		}
-        cout<< "\tFecha de Nacimiento: ";
-       	cout<<"\n\tDia: ";
-    	fNac.dia=obtener_entero(1,31);
-       	pac.Fecha_Nac.dia = fNac.dia;
-       	cout<<"\tMes: ";
-       	fNac.mes = obtener_entero(1,12);
+
+		cout<< "\tFecha de Nacimiento: ";
+		cout<<"\n\tDia: ";
+		fNac.dia=obtener_entero(1,31);
+		pac.Fecha_Nac.dia = fNac.dia;
+		cout<<"\tMes: ";
+		fNac.mes = obtener_entero(1,12);
 		pac.Fecha_Nac.mes = fNac.mes;
-       	cout<<"\tAnio: ";
-       	fNac.anio = obtener_entero(1900,2100);
+		cout<<"\tAnio: ";
+		fNac.anio = obtener_entero(1900,2100);
 		pac.Fecha_Nac.anio = fNac.anio;
 		fflush(stdin);
-		
-        cout<< "\tTelefono: ";
-        telef=obtener_entero();
-        pac.telefono=telef;
-        cout<< "\tSeguro: ";
-        cout<< "\n\t\tCuenta con Seguro......[1]";
-        cout<< "\n\t\tNo cuenta con Seguro...[2]";
-        cout<< "\n\t\tDigite opcion: ";
-        
-		seguro=obtener_entero(1,2);
-        
-		switch(seguro){
-        	case 1:
-        		segur1="Si";
-        		strcpy(pac.Seguro,segur1.c_str());
-        		break;
-        	case 2:
-        		segur1="No";
-        		strcpy(pac.Seguro,segur1.c_str());
-        		break;
-		}
-		fflush(stdin);
-        cout<< "\tProblemas Medicos: ";
-        getline(cin,problem);
-        strcpy(pac.Problemas_Medicos,problem.c_str());
-        fflush(stdin);
 
-        if (insertar_paciente_archivo(pac)) {
-				cout << "\n\tEl Historial fue creado satisfactoriamente" << endl;
-			} else {
-				cout << "\n\tExiste un error al intentar crear el historial." << endl;
-				cout << "\n\tIntentelo nuevamente." << endl;
-			}	
+		cout<< "\tTelefono: ";
+		telef=obtener_entero();
+		pac.telefono=telef;
+		cout<< "\tSeguro: ";
+		cout<< "\n\t\tCuenta con Seguro......[1]";
+		cout<< "\n\t\tNo cuenta con Seguro...[2]";
+		cout<< "\n\t\tDigite opcion: ";
+
+		seguro=obtener_entero(1,2);
+
+		switch(seguro){
+			case 1:
+				segur1="Si";
+				strcpy(pac.Seguro,segur1.c_str());
+				break;
+			case 2:
+				segur1="No";
+				strcpy(pac.Seguro,segur1.c_str());
+				break;
 		}
-		cout << "\n\tDesea continuar? [S/n]: ";
-		getline(cin, respuesta);
-		if (!(respuesta.compare("s") == 0 || respuesta.compare("S") == 0)) {
-			repetir = false;
-		}
-		
-		menu_paciente();
-	} while (repetir); 
-	
-	menu_principal();   
+
+		cout<< "\tProblemas Medicos: ";
+		getline(cin,problem);
+		strcpy(pac.Problemas_Medicos,problem.c_str());
+
+		if (insertar_paciente_archivo(pac)) {
+			cout << "\n\tLos datos fueron agregados satisfactoriamente" << endl;
+			pausar_pantalla();
+		} else {
+			cout << "\n\tExiste un error al intentar agregar los datos." << endl;
+			cout << "\n\tIntentelo nuevamente." << endl;
+			pausar_pantalla();
+		}	
+	}
 }
-void existe_paciente(bool &existe,int DNI, Paciente *pac) {
+
+void existe_paciente(bool &existe, int DNI, Paciente *pac) {
 	FILE *archivo;
 	
 
@@ -1214,9 +1249,10 @@ void existe_paciente(bool &existe,int DNI, Paciente *pac) {
 		}
 		fclose(archivo);
 	}
-
 }
+
 bool insertar_paciente_archivo(Paciente pac) {
+	
 	FILE *archivo;
 	bool insercion;
 
@@ -1231,11 +1267,15 @@ bool insertar_paciente_archivo(Paciente pac) {
 	}
 	return insercion;
 }
+
 void opcion_mostrar_paciente() {
+	
 	Paciente *pacientes;
 	int num_pac;
+	string nombre_completo, fecha_nacimiento;
+  stringstream ss;
 
-	system("cls");
+	limpiar_pantalla();
 	titulo_principal();
 	pacientes = obtener_pac_archivo(&num_pac);
 
@@ -1245,30 +1285,35 @@ void opcion_mostrar_paciente() {
 	} else {
 
 		cout << "\n\t\t\t\tPACIENTES REGISTRADOS\n";
-		cout << "\n\t   ------------------------------------------------------------\n";
+		cout << "  " << setw(10) << setiosflags(ios::left) << "DNI";
+		cout << setw(35) << setiosflags(ios::left) << "Nombres";
+		cout << setw(11) << setiosflags(ios::left) << "Est Civil";
+		cout << setw(7) << setiosflags(ios::left) << "Genero";
+    cout << setw(11) << setiosflags(ios::left) << "FNac";
+		cout << setw(5) << setiosflags(ios::left) << "Edad";
+		cout << setw(10) << setiosflags(ios::left) << "Telefono" << endl;
 		for (int i = 0; i < num_pac; i++) {
-				
-				cout << "\t\tDNI: "<< pacientes[i].DNI<< endl;
-				cout << "\t\tApellido Paterno: " << pacientes[i].Apellido_Paterno << endl;
-				cout << "\t\tApellido Materno: " << pacientes[i].Apellido_Materno << endl;
-				cout << "\t\tNombres: " << pacientes[i].Nombres << endl;
-				cout << "\t\tEstado Civil: " << pacientes[i].Estado_Civil<< endl;
-				cout << "\t\tGenero: " << pacientes[i].Genero << endl;
-				cout << "\t\tFecha de Nacimiento: ";
-				cout << "\n\t\tDia: "<<pacientes[i].Fecha_Nac.dia<<endl;
-				cout << "\t\tMes: "<<pacientes[i].Fecha_Nac.mes<<endl;
-				cout << "\t\tAnio: "<<pacientes[i].Fecha_Nac.anio<<endl;
-				cout << "\t\tEdad: "<< obtener_edad(pacientes[i])<< endl;
-				cout << "\t\tTelefono: "<< pacientes[i].telefono<<endl;
-				cout << "\t\tSeguro: "<< pacientes[i].Seguro<<endl;
-				cout << "\t\tProblemas Medicos: "<< pacientes[i].Problemas_Medicos<<endl;	
-
-			cout << "\n\t   ------------------------------------------------------------\n";
+			ss.str("");
+			ss << setw(2) << setfill('0') << pacientes[i].Fecha_Nac.dia << "-"
+				 << setw(2) << setfill('0') << pacientes[i].Fecha_Nac.mes << "-"
+				 << setw(4) << pacientes[i].Fecha_Nac.anio;
+			fecha_nacimiento = ss.str();
+			nombre_completo = string(pacientes[i].Nombres) + " " + string(pacientes[i].Apellido_Paterno) + " ";
+			nombre_completo = nombre_completo + string(pacientes[i].Apellido_Materno);
+			cout << "  " << setw(10) << setiosflags(ios::left) << pacientes[i].DNI;
+			cout << setw(35) << setiosflags(ios::left) << nombre_completo;
+			cout << setw(11) << setiosflags(ios::left) << pacientes[i].Estado_Civil;
+			cout << setw(7) << setiosflags(ios::left) << pacientes[i].Genero;
+      cout << setw(11) << setiosflags(ios::left) << fecha_nacimiento;
+			cout << setw(5) << setiosflags(ios::left) << obtener_edad(pacientes[i]);
+			cout << setw(10) << setiosflags(ios::left) << pacientes[i].telefono << endl;
 		}
 		pausar_pantalla();
 	}
 }
+
 Paciente *obtener_pac_archivo(int *n) {
+	
 	FILE *archivo;
 	Paciente paciente;
 	Paciente *pacientes;
@@ -1296,8 +1341,8 @@ Paciente *obtener_pac_archivo(int *n) {
 	return pacientes;
 }
 
-
 void menu_consulta() {
+	
 	bool repetir = true;
 	FILE* archivo;
 	char consulta[20]="consulta.dat";
@@ -1306,7 +1351,7 @@ void menu_consulta() {
 	do {
 		menu_consulta_opciones();
 		opcion = obtener_entero(1,3);
-		switch (opcion) {					
+		switch (opcion) {
 			case 1:
 				opcion_crear_archivo(archivo,consulta);
 				break;
@@ -1319,8 +1364,10 @@ void menu_consulta() {
 		}
 	} while (repetir);
 }
+
 void menu_consulta_opciones(void) {
-	system("cls");
+
+	limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\t\t\tMENU CONSULTA\n";
 	cout << "\n\t\t[1]. Crear archivo consulta\n";
@@ -1328,89 +1375,79 @@ void menu_consulta_opciones(void) {
 	cout << "\t\t[3]. Volver al menu principal\n";
 	cout << "\n\t\tIngrese una opcion: ";
 }
+
 void opcion_realizar_consulta(void){
 	
 	int codigoCit;
-	bool repetir,l;
+	bool repetir, existe;
 	string signos,sintomas,resultados,diagnostico,medicamentos,instrucciones,respuesta;
 	Cita cit;
 	Consulta cons;
 	Receta rec;
 	
-	do {
-		system("cls");
-		titulo_principal();
-		cout << "\n\t\tREALIZAR CONSULTA\n";
-		cout<< "\tIngrese el codigo de la cita: ";
-		codigoCit=obtener_entero();
-		existe_cita(l,codigoCit, &cit);
-		if (!l) {
-			cout <<"\n\tNo ha sacado cita aun."<<endl;
-		}else{
-			
+	limpiar_pantalla();
+	titulo_principal();
+	cout << "\n\t\tREALIZAR CONSULTA\n";
+	cout<< "\tIngrese el codigo de la cita: ";
+	codigoCit=obtener_entero();
+	existe_cita(existe, codigoCit, &cit);
+
+	if (!existe) {
+		cout <<"\n\tNo ha sacado cita aun."<<endl;
+	} else {
+
 		cons.codigoHist = cit.DNI;
-		
+
 		cout << "\tIngrese los signos: ";
 		getline(cin,signos);
 		strcpy(cons.signos,signos.c_str());
-		fflush(stdin);
-		
+
 		cout << "\tIngrese los sintomas: ";
 		getline(cin,sintomas);
 		strcpy(cons.sintomas,sintomas.c_str());
-		fflush(stdin);
-		
-		cout<< "\tIngrese los resultados: ";
-        getline(cin,resultados);
-        strcpy(cons.resultados,resultados.c_str());
-        fflush(stdin);
-        
-        cout<< "\tIngrese el diagnostico: ";
-        getline(cin,diagnostico);
-        strcpy(cons.diagnostico,diagnostico.c_str());
-        fflush(stdin);
 
-        if (insertar_consulta_archivo(cons)) {
-				cout << "\n\tLa consulta fue registrada satisfactoriamente." << endl;
-			} else {
-				cout << "\n\tExiste un error al intentar registrar la consulta." << endl;
-				cout << "\n\tIntentelo nuevamente." << endl;
-			}	
-		
+		cout<< "\tIngrese los resultados: ";
+		getline(cin,resultados);
+		strcpy(cons.resultados,resultados.c_str());
+
+		cout<< "\tIngrese el diagnostico: ";
+		getline(cin,diagnostico);
+		strcpy(cons.diagnostico,diagnostico.c_str());
+
+		if (insertar_consulta_archivo(cons)) {
+			cout << "\n\tLa consulta fue registrada satisfactoriamente." << endl;
+			pausar_pantalla();
+		} else {
+			cout << "\n\tExiste un error al intentar registrar la consulta." << endl;
+			cout << "\n\tIntentelo nuevamente." << endl;
+			pausar_pantalla();
+		}	
+
 		cout<<"\n\tRECETA: ";
-		
+
 		rec.codigoCit = codigoCit;
-		
+
 		cout << "\n\tIngrese los medicamentos: ";
 		getline(cin,medicamentos);
 		strcpy(rec.medicamentos,medicamentos.c_str());
-		fflush(stdin);
-		
+
 		cout << "\tIngrese las instrucciones: ";
 		getline(cin,instrucciones);
 		strcpy(rec.instrucciones,instrucciones.c_str());
-		fflush(stdin);
 
-        if (insertar_receta_archivo(rec)) {
-				cout << "\n\tLa receta fue registrada satisfactoriamente." << endl;
-			} else {
-				cout << "\n\tExiste un error al intentar registrar la receta." << endl;
-				cout << "\n\tIntentelo nuevamente." << endl;
-			}
+		if (insertar_receta_archivo(rec)) {
+			cout << "\n\tLa receta fue registrada satisfactoriamente." << endl;
+			pausar_pantalla();
+		} else {
+			cout << "\n\tExiste un error al intentar registrar la receta." << endl;
+			cout << "\n\tIntentelo nuevamente." << endl;
+			pausar_pantalla();
 		}
-	
-		cout << "\n\tDesea continuar? [S/n]: ";
-		getline(cin, respuesta);
-		if (!(respuesta.compare("s") == 0 || respuesta.compare("S") == 0)) {
-			repetir = false;
-		}
-		
-		menu_paciente();
-	} while (repetir); 
-	
-	menu_principal();   
+	}
 }
+
 bool insertar_consulta_archivo(Consulta cons) {
+	
 	FILE *archivo;
 	bool insercion;
 
@@ -1425,7 +1462,9 @@ bool insertar_consulta_archivo(Consulta cons) {
 	}
 	return insercion;
 }
+
 Consulta *obtener_cons_archivo(int *n) {
+	
 	FILE *archivo;
 	Consulta consulta;
 	Consulta *consultas;
@@ -1465,7 +1504,7 @@ void menu_receta() {
 		opcion = obtener_entero(1,3);
 		switch (opcion) {					
 			case 1:
-				opcion_crear_archivo(archivo,receta);
+				opcion_crear_archivo(archivo, receta);
 				break;
 			case 2:
 				opcion_mostrar_receta();
@@ -1476,8 +1515,9 @@ void menu_receta() {
 		}
 	} while (repetir);
 }
+
 void menu_receta_opciones(void) {
-	system("cls");
+  limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\t\t\tMENU RECETA\n";
 	cout << "\n\t\t[1]. Crear archivo receta\n";
@@ -1485,7 +1525,9 @@ void menu_receta_opciones(void) {
 	cout << "\t\t[3]. Volver al menu principal\n";
 	cout << "\n\t\tIngrese una opcion: ";
 }
-bool insertar_receta_archivo(Receta rec){
+
+
+bool insertar_receta_archivo(Receta rec) {
 	FILE *archivo;
 	bool insercion;
 
@@ -1497,11 +1539,12 @@ bool insertar_receta_archivo(Receta rec){
 		fwrite(&rec, sizeof(rec), 1, archivo);
 		insercion = true;
 		fclose(archivo);
-		}
+	}
 	return insercion;
 }
 
 Receta *obtener_rec_archivo(int *n) {
+	
 	FILE *archivo;
 	Receta receta;
 	Receta *recetas;
@@ -1528,11 +1571,12 @@ Receta *obtener_rec_archivo(int *n) {
 	}
 	return recetas;
 }
+
 void opcion_mostrar_receta() {
 	Receta *recetas;
 	int num_rec;
 
-	system("cls");
+  limpiar_pantalla();
 	titulo_principal();
 	recetas = obtener_rec_archivo(&num_rec);
 
@@ -1557,8 +1601,8 @@ void opcion_mostrar_receta() {
 	}
 }
 
-
 void menu_reportes() { 
+	
 	void menu_principal_opciones();
 	bool se_repite = true;
 	int opcion;
@@ -1583,8 +1627,9 @@ void menu_reportes() {
 		}
 	} while (se_repite);
 }
+
 void menu_reportes_opciones(void) {
-	system("cls");
+  limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\t\t\tMENU SERVICIOS\n";
 	cout << "\n\t\t[1]. Especialidad mas solicitada\n";
@@ -1593,6 +1638,7 @@ void menu_reportes_opciones(void) {
 	cout << "\t\t[4]. Salir\n";
 	cout << "\n\t\tIngrese una opcion: ";
 }
+
 void opcion_especialidad_masolicitada(){
 Cita *citas;
 int nro_citas;
@@ -1602,7 +1648,7 @@ int c1=0, c2=0, c3=0;
 char n1[30]="Medicina General", n2[30]="Pediatria", n3[30]="Ginecologia";
 
 
-	system("cls");
+  limpiar_pantalla();
 	titulo_principal();		
 	cout << "\n\t\tESPECIALIDAD MAS SOLICITADA\n";
 	
@@ -1683,13 +1729,14 @@ char n1[30]="Medicina General", n2[30]="Pediatria", n3[30]="Ginecologia";
 	pausar_pantalla();	
 	}
 }
+
 void opcion_promedio_edad(){
 Paciente *paciente;
 int num_pac;
 int sumaEdad=0;
 float promedio;
 
-	system("cls");
+  limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\tEDAD PROMEDIO\n";
 	paciente = obtener_pac_archivo(&num_pac);
@@ -1708,6 +1755,7 @@ float promedio;
 		}	
 	pausar_pantalla();
 }
+
 void opcion_promedio_edad_x_especialidad(){
 Paciente *paciente;
 Cita *cita;
@@ -1716,7 +1764,7 @@ float sumaEdad_med=0, sumaEdad_ped=0, sumaEdad_gin=0, m=0, p=0, g=0;
 float promedioMed,promedioPed,promedioGin;
 char med[30]="Medicina General",ped[30]="Pediatria",gin[30]="Ginecologia";
 
-	system("cls");
+  limpiar_pantalla();
 	titulo_principal();
 	cout << "\n\t\tEDAD PROMEDIO\n";
 	cita = obtener_array_cita(&num_cit);
@@ -1794,10 +1842,11 @@ char med[30]="Medicina General",ped[30]="Pediatria",gin[30]="Ginecologia";
 }  
 
 void titulo_principal(void) {
-	cout << "\n     ======================================================================\n";
-	cout << "\t\t\t\t CLINICA FISI\n";
-	cout << "     ======================================================================\n";
+	cout << "\n             ======================================================================\n";
+	cout << "\t\t\t\t         CLINICA FISI\n";
+	cout << "             ======================================================================\n";
 }
+
 int obtener_entero() {
 	bool no_es_entero = true;
 	string valor;
@@ -1815,6 +1864,7 @@ int obtener_entero() {
 	}
 	return atoi(valor.c_str());
 }
+
 int obtener_entero(int inf, int sup) {
 	bool no_aceptado = true;
 	int numero;
@@ -1832,6 +1882,7 @@ int obtener_entero(int inf, int sup) {
 	}
 	return numero;
 }
+
 bool es_entero_valido(string str) {
 	int i=0;
 	bool valido = true;
@@ -1848,6 +1899,7 @@ bool es_entero_valido(string str) {
 
 	return valido;
 }
+
 double obtener_flotante(void) {
 	bool no_es_flotante = true;
 	string valor;
@@ -1866,6 +1918,7 @@ double obtener_flotante(void) {
 	}
 	return atof(valor.c_str());
 }
+
 bool es_flotante_valido(string str) {
 	int inicio = 0;
 	int i, n_puntos = 0;
@@ -1909,6 +1962,7 @@ bool es_flotante_valido(string str) {
 
 	return valido;
 }
+
 void pausar_pantalla() {
 	char caracter;
 	cout << "\n\tPresiona 'Enter' para continuar...";
@@ -1917,17 +1971,9 @@ void pausar_pantalla() {
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
+void limpiar_pantalla(void) {
+  system("cls");
+}
 
 
 
