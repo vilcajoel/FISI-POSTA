@@ -32,13 +32,14 @@ struct Paciente{
 	char Problemas_Medicos[200];
 }* prim, * ult;
 
-struct Historial{
+struct Historial{//Duda si usar hash map 
 	int codigoHist;
 	int DNI;
 	Fecha fechaHist;
 };
 
 struct Medico {
+	Medico* siguiente;
 	int DNI;
 	char nombre[25];
 	char apellidoP[25];
@@ -47,7 +48,7 @@ struct Medico {
 	char correoElectronico[25];
 	char centroDeEstudio[49];
 	char especialidad[25];
-};
+}* primer, * ultimo; 
 
 struct Cita {
 	Cita* siguiente;
@@ -56,7 +57,7 @@ struct Cita {
 	char Especialidad[25];
 	Fecha fechaCita;
 	Hora horaCita;
-}* primero, * ultimo;
+}* primero, * ultim;
 
 struct Consulta{
 	Consulta* siguiente;	
@@ -68,7 +69,7 @@ struct Consulta{
 	
 }* prime, * ulti;
 
-struct Receta{
+struct Receta{//Duda si usar hash map 
 	int codigoCit;
 	char medicamentos[200];
 	char instrucciones[200];
@@ -304,14 +305,14 @@ void opcion_agregar_cita() {
 	{
 		cout<<"\n\tEsta cita ya existe"<<endl;
 	} else {
-		if(primero==NULL){
+		if(primer==NULL){
 			primero=nuevaCita;
 			primero->siguiente=NULL;
-			ultimo= primero;		 //SE UTILIZA LA ESTRUCTURA DE DATOS COLA, PARA SIMULAR A LAS COLAS DE PACIENTES QUE BUSCAN UNA CITA EN LA CLINICA
+			ultim= primero;		 //SE UTILIZA LA ESTRUCTURA DE DATOS COLA, PARA SIMULAR A LAS COLAS DE PACIENTES QUE BUSCAN UNA CITA EN LA CLINICA
 		}else{
-			ultimo->siguiente = nuevaCita;
+			ultim->siguiente = nuevaCita;
 			nuevaCita->siguiente = NULL;
-			ultimo=nuevaCita;	
+			ultim=nuevaCita;	
 		}
 		cout << "\tIngresa el DNI del usuario: ";
 		DNI = obtener_entero();
@@ -455,11 +456,10 @@ bool insertar_cita_archivo(Cita cit) {
 		insercion = true;
 		fclose(archivo);
 	}
-
 	return insercion;
 }
 
-bool fecha_valida(Fecha fCita,Hora hCita)
+bool fecha_valida(Fecha fCita,Hora hCita)//NO MOVER ESTA FUNCION
 {
 	Fecha fActual;
 	Hora hActual;
@@ -527,7 +527,7 @@ Cita *obtener_array_cita(int *n) {
 	return citas;
 }
 
-bool fecha_rango_valido(Fecha fCita)
+bool fecha_rango_valido(Fecha fCita) //NO TOCAR FUNCION
 {
 	bool rango_valido = true;
 	bool bisiesto;
@@ -571,7 +571,7 @@ bool fecha_rango_valido(Fecha fCita)
 	return rango_valido;
 }
 
-bool hora_rango_valido(Hora hCita)
+bool hora_rango_valido(Hora hCita)//NO TOCAR FUNCION
 {
 	bool rango_valido = true;
 	
@@ -740,6 +740,7 @@ void menu_medico_opciones(){
 
 void opcion_crear_medico(){
 	bool se_repite=true, existe;
+	Medico *nuevoMedico = new Medico();
 	Medico user;
 	int tipo,DNI,Telefono,Sueldo;
 	string nombre,aPaterno,aMaterno,correo,centro,tipoEspecialidad,contra,opc;
@@ -751,6 +752,17 @@ void opcion_crear_medico(){
 	DNI=obtener_entero();
 	existe_medico(existe, DNI, &user);
 	if(!existe) {
+		
+		if(prime==NULL){
+			primer=nuevoMedico;
+			primer->siguiente=NULL;
+			ultimo= primer;
+		}else{
+			ultimo->siguiente = nuevoMedico;
+			nuevoMedico->siguiente = NULL;
+			ultimo=nuevoMedico;
+		}
+		
 		user.DNI=DNI;
 		cout << "\tIngresa el Nombre del medico: ";
 		getline(cin,nombre);
@@ -836,7 +848,7 @@ void opcion_mostrar_medico(){
 	
 	Medico *medicos;
 	int nro_medicos;
-  string nombre_completo;
+  	string nombre_completo;
 
 	limpiar_pantalla();
 	titulo_principal();
@@ -952,9 +964,7 @@ void opcion_mostrar_historial() {
 				cout<<"\n\tCITA "<<endl;
 				cout<<"\tEspecialidad: "<<cit[i].Especialidad<<endl;
 				cout<<"\tFecha: "<<cit[i].fechaCita.anio<<"/"<<cit[i].fechaCita.mes<<"/"<<cit[i].fechaCita.dia<<endl;
-				cout<<"\tHora: "<<cit[i].horaCita.hora<<":"<<cit[i].horaCita.minutos<<endl;
-				
-				
+				cout<<"\tHora: "<<cit[i].horaCita.hora<<":"<<cit[i].horaCita.minutos<<endl;				
 			}
 		}
 		
@@ -966,8 +976,7 @@ void opcion_mostrar_historial() {
 				cout<<"\tDiagnostico: "<<cons[j].diagnostico<<endl;
 				cout<<"\tSignos: "<<cons[j].signos<<endl;
 				cout<<"\tSintomas: "<<cons[j].sintomas<<endl;
-				cout<<"\tResultados: "<<cons[j].resultados<<endl;
-				
+				cout<<"\tResultados: "<<cons[j].resultados<<endl;				
 			}
 		}
 		
@@ -2013,13 +2022,4 @@ void pausar_pantalla() {
 void limpiar_pantalla(void) {
   system("cls");
 }
-
-
-
-
-
-
-
-
-
 
